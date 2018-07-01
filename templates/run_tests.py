@@ -1,0 +1,65 @@
+#!/bin/python
+
+import subprocess
+import os
+
+CXXFLAGS = ['-std=c++14', '-Wall', '-Wextra',
+    '-DLOCAL', '-pedantic']  # flags for compilation
+COMPILER = 'g++'
+
+RESET_COLOR = '\033[0m'
+RED_COLOR = '\033[31m'
+GREEN_COLOR = '\033[32m'
+BOLD = '\033[1m'
+
+
+def exists(file_name):
+    file_name = exec_dir + file_name
+    return os.path.exists(file_name) and os.path.isfile(file_name)
+
+
+def compare(ans_check, ans_right):  # TODO: make more smart compare
+    return ans_check == ans_right
+
+
+test_num = 1
+exec_dir = __file__.replace('run_tests.py', '')
+os.chdir(exec_dir)
+compile_process = subprocess.run(
+    [COMPILER] + CXXFLAGS + ['-o', 'solution'] + ['solution.cpp'])
+if compile_process.returncode != 0:
+    exit(-1)
+while 1:
+    if not exists(str(test_num)):
+        break
+    test_in = open(str(test_num))
+    test_data = test_in.read().strip()
+    if not exists(str(test_num) + '.a'):
+        print(RED_COLOR + BOLD + 'ANSWER FILE FOR TEST {} NOT FOUND'.format(
+            str(test_num)), end='\n' + RESET_COLOR)
+        exit(1)
+    test_out = open(str(test_num) + '.a')
+    test_ans = test_out.read().strip()
+    process = subprocess.Popen(
+        './solution', universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    try:
+        data = process.communicate(input=test_data, timeout=5)
+        if process.returncode != 0:
+            print(RED_COLOR + 'Solution returned non-zero exit code (Runtime ERROR)',
+                  end='\n' + RESET_COLOR)
+            continue
+        solution_ans = data[0].strip()
+        if compare(solution_ans, test_ans):
+            print(GREEN_COLOR + "Test #{} is ok".format(str(test_num)),
+                  end='\n' + RESET_COLOR)
+        else:
+            print(RED_COLOR + "Wrong Answer on test #{}".format(str(test_num)))
+            print('Excepted:')
+            print(test_ans)
+            print('Found:')
+            print(solution_ans)
+            print(RESET_COLOR, end='')
+    except:
+        print(RED_COLOR + 'Time limit Exceeded on test #{}'.format(str(test_num)),
+              end='\n' + RESET_COLOR)
+    test_num += 1
