@@ -1,0 +1,21 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+# vstup/
+*.in
+*.out
+*.txt
+*.stdin
+*.stdout
+*.stderr
+*.o
+*.a
+*.out
+.idea/
+.vscode/
+cmake*/
