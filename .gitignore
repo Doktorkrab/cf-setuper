@@ -1,13 +1,2 @@
-*.in
-*.out
-*.txt
-*.stdin
-*.stdout
-*.stderr
-*.o
-*.a
-*.out
-.idea/
-.vscode/
-cmake*/
+.*
 tests/
