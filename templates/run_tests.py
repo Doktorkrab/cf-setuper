@@ -59,7 +59,10 @@ while 1:
             print('Found:')
             print(solution_ans)
             print(RESET_COLOR, end='')
-    except:
+    except TimeoutError:
         print(RED_COLOR + 'Time limit Exceeded on test #{}'.format(str(test_num)),
               end='\n' + RESET_COLOR)
+    except Exception as e:
+        print(RED_COLOR + 'Checker Error', end='\n' + RESET_COLOR)
+        exit(2)
     test_num += 1
