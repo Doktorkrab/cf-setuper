@@ -1,0 +1,74 @@
+#!/bin/python
+import requests
+import bs4
+import argparse
+import os
+import shutil
+
+
+RESET_COLOR = '\033[0m'
+RED_COLOR = '\033[31m'
+GREEN_COLOR = '\033[32m'
+BOLD = '\033[1m'
+END_LINE = '\n' + RESET_COLOR
+
+parser = argparse.ArgumentParser()
+parser.add_argument('contest', help='contest id to parse')
+
+CODEFORCES_CONTEST_URL = 'http://codeforces.com/contest/{}'
+CODEFORCES_CONTEST_PROBLEMS_URL = 'http://codeforces.com/contest/{}/problem/{}'
+TEMPLATES_DIR = os.path.dirname(os.path.realpath(__file__)) + '/templates/'
+
+
+args = parser.parse_args()
+
+
+def get_problem_html_parsed(contest_id, problem):
+    url = CODEFORCES_CONTEST_PROBLEMS_URL.format(contest_id, problem)
+    r = requests.get(url) 
+    if r.status_code != 200 or r.url != url:
+        return None
+    return bs4.BeautifulSoup(r.text, 'html.parser')
+
+
+def copy_templates():
+    files = os.listdir(TEMPLATES_DIR)
+    for file in files:
+        shutil.copy2(TEMPLATES_DIR + file, '.')
+
+def get_problems():
+    for problem in range(65, 91):
+        parsed = get_problem_html_parsed(args.contest, chr(problem))
+        if parsed is None:
+            break
+        
+        print(GREEN_COLOR + 'Found problem ' + chr(problem))
+        
+        os.mkdir(chr(problem))
+        os.chdir(chr(problem))
+        
+        tests_input = parsed.find_all(attrs={'class': 'input'})
+        tests_output = parsed.find_all(attrs={'class': 'output'})
+        print('Found {} examples'.format(str(len(tests_input))), end=END_LINE)
+
+        for test in range(len(tests_input)):
+            in_file =  open(str(test + 1), 'w')
+            out_file =  open(str(test + 1) + '.a', 'w')
+            print(tests_input[test].pre.get_text('\n'), file=in_file)
+            print(tests_output[test].pre.get_text('\n'), file=out_file)
+            in_file.close()
+            out_file.close()
+        
+        copy_templates()
+        os.chdir('..') 
+
+contest = requests.get(CODEFORCES_CONTEST_URL.format(args.contest))
+if contest.status_code != 200:
+    print(RED_COLOR + 'Contest not found', end=END_LINE)
+    exit(-1)
+
+os.mkdir(args.contest)
+os.chdir(args.contest)
+
+get_problems()
+
