@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+mkdir -p /usr/share/cf-setuper
+cp cf-setuper /usr/share/cf-setuper
+cp -r templates /usr/share/cf-setuper
+ln -sf /usr/share/cf-setuper/cf-setuper /usr/bin/cf-setuper
+
+chown -R $USER /usr/share/cf-setuper
+chmod -R 755 /usr/share/cf-setuper

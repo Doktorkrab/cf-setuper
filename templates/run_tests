@@ -14,7 +14,7 @@ BOLD = '\033[1m'
 
 
 def exists(file_name):
-    file_name = exec_dir + file_name
+    file_name = exec_dir + '/' + file_name
     return os.path.exists(file_name) and os.path.isfile(file_name)
 
 
@@ -23,7 +23,8 @@ def compare(ans_check, ans_right):  # TODO: make more smart compare
 
 
 test_num = 1
-exec_dir = __file__.replace('run_tests.py', '')
+exec_dir = __file__.replace('run_tests.py', '').replace('run_tests', '')
+exec_dir = os.path.realpath(exec_dir)
 os.chdir(exec_dir)
 compile_process = subprocess.run(
     [COMPILER] + CXXFLAGS + ['-o', 'solution'] + ['solution.cpp'])
